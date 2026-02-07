@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KiloByte SOC - Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <main class="max-w-6xl mx-auto px-10 py-12 space-y-8">
+    <a id="back" href="#" class="text-teal-400">← Back to Lesson</a>
+
+    <header class="space-y-2">
+      <h1 id="labTitle" class="text-3xl font-semibold">Lab</h1>
+      <p id="labSubtitle" class="text-slate-400"></p>
+      <span id="labCategory" class="inline-block px-3 py-1 text-xs rounded-full bg-teal-500/10 text-teal-300">category</span>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- MAIN -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h2 class="text-xl font-semibold" id="scenarioTitle">Scenario</h2>
+          <p class="text-slate-300" id="scenarioText"></p>
+
+          <div id="interactionBlock" class="space-y-3"></div>
+
+          <div id="reflectionBlock" class="hidden border-t border-slate-800 pt-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <p class="font-semibold">Reflection</p>
+              <span class="px-3 py-1 rounded-full text-xs bg-teal-500/10 text-teal-300">Critical Thinking</span>
+            </div>
+
+            <p id="reflectionPrompt" class="text-slate-200 text-sm"></p>
+
+            <textarea id="reflectionAnswer"
+              class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              rows="4"
+              placeholder="Write 2–5 sentences. Reference evidence, reasoning, and tradeoffs."
+            ></textarea>
+
+            <div class="flex items-center justify-between gap-3">
+              <button id="submitReflection"
+                class="bg-slate-200 text-black px-5 py-2 rounded-xl font-medium hover:bg-white transition">
+                Submit Reflection
+              </button>
+
+              <button id="finishLab"
+                class="hidden bg-teal-500 text-black px-5 py-2 rounded-xl font-medium hover:bg-teal-400 transition">
+                Finish Lab
+              </button>
+            </div>
+
+            <div id="reflectionResult" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-300 font-medium">Mental Mastery Score</p>
+                <p id="score" class="text-teal-300 font-semibold">0/5</p>
+              </div>
+              <p id="feedback" class="text-slate-200 text-sm"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="doneCard" class="hidden bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h2 class="text-xl font-semibold">✅ Lab Saved</h2>
+          <p class="text-slate-300">This lesson’s lab is marked complete (stored locally).</p>
+          <a id="backToLesson2" href="#" class="text-teal-400">← Back to Lesson</a>
+        </div>
+
+      </div>
+
+      <!-- EVIDENCE / ARTIFACTS -->
+      <aside class="space-y-6">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Artifacts</h3>
+            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300" id="artifactTag">evidence</span>
+          </div>
+
+          <div class="bg-black/60 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-200 leading-5">
+            <pre id="artifactText"></pre>
+          </div>
+
+          <p class="text-slate-400 text-sm" id="artifactHint"></p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-3">
+          <h3 class="font-semibold">Your Notes</h3>
+          <textarea
+            class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            rows="6"
+            placeholder="Write observations here (optional)..."
+          ></textarea>
+          <p class="text-xs text-slate-500">Notes aren’t graded — they support analyst thinking.</p>
+        </div>
+      </aside>
+    </section>
+
+  </main>
+
+  <script>
+    function qp(name, fallback="") {
+      const p = new URLSearchParams(window.location.search);
+      return p.get(name) || fallback;
+    }
+
+    const unit = qp("unit","unit1");
+    const lessonId = qp("lesson","cyber-ethics");
+    const KEY = `${unit}_${lessonId}`;
+
+    function getProg() {
+      return JSON.parse(localStorage.getItem(KEY)) || { reading:false, lab:false, quiz:false };
+    }
+    function setProg(p) {
+      localStorage.setItem(KEY, JSON.stringify(p));
+    }
+
+    // same lesson map used elsewhere
+    const LESSONS = {
+      "cyber-hacking": { name:"Cybersecurity & Hacking", category:"concepts" },
+      "threat-actors": { name:"Threat Actors", category:"threat_actors" },
+      "cyber-ethics": { name:"Cyber Ethics", category:"ethics" },
+      "malware-types": { name:"Malware Types", category:"malware" },
+      "hashing-salting": { name:"Hashing & Salting", category:"crypto" },
+      "attack-types": { name:"Cyber Attack Types & Analysis", category:"attack_analysis" },
+      "kali-cli": { name:"Kali Linux & CLI", category:"linux" },
+      "sandboxing": { name:"Sandboxing Malware", category:"malware" },
+      "malware-cases": { name:"Malware Types & Cases", category:"malware" },
+      "ransomware-concepts": { name:"How Ransomware Works (Concepts)", category:"malware" },
+    };
+
+    const L = LESSONS[lessonId] || { name:"Lesson", category:"general" };
+
+    // UI refs
+    const back = document.getElementById("back");
+    const back2 = document.getElementById("backToLesson2");
+    const labTitle = document.getElementById("labTitle");
+    const labSubtitle = document.getElementById("labSubtitle");
+    const labCategory = document.getElementById("labCategory");
+
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const scenarioText = document.getElementById("scenarioText");
+    const interactionBlock = document.getElementById("interactionBlock");
+
+    const artifactTag = document.getElementById("artifactTag");
+    const artifactText = document.getElementById("artifactText");
+    const artifactHint = document.getElementById("artifactHint");
+
+    const reflectionBlock = document.getElementById("reflectionBlock");
+    const reflectionPrompt = document.getElementById("reflectionPrompt");
+    const reflectionAnswer = document.getElementById("reflectionAnswer");
+    const submitReflection = document.getElementById("submitReflection");
+    const finishLab = document.getElementById("finishLab");
+    const reflectionResult = document.getElementById("reflectionResult");
+    const scoreEl = document.getElementById("score");
+    const feedbackEl = document.getElementById("feedback");
+
+    const doneCard = document.getElementById("doneCard");
+
+    back.href = `lesson.html?unit=${encodeURIComponent(unit)}&lesson=${encodeURIComponent(lessonId)}`;
+    back2.href = back.href;
+
+    labTitle.textContent = `Lab: ${L.name}`;
+    labSubtitle.textContent = "Make a decision, then explain your reasoning.";
+    labCategory.textContent = L.category.replaceAll("_"," ");
+
+    // --- scoring rubric for reflection (generic) ---
+    function scoreReflection(text, keywords) {
+      const t = text.toLowerCase();
+      let pts = 0;
+
+      const hasEvidence = ["because","evidence","example","shows","indicates"].some(k => t.includes(k));
+      const hasTradeoff = ["tradeoff","risk","impact","balance","cost"].some(k => t.includes(k));
+      const hasAction = ["i would","next","recommend","mitigate","prevent"].some(k => t.includes(k));
+      const lengthOK = t.trim().split(/\s+/).length >= 30;
+      const keywordHit = keywords.some(k => t.includes(k));
+
+      if (hasEvidence) pts++;
+      if (hasTradeoff) pts++;
+      if (hasAction) pts++;
+      if (lengthOK) pts++;
+      if (keywordHit) pts++;
+
+      const missing = [];
+      if (!hasEvidence) missing.push("reference evidence or an example");
+      if (!hasTradeoff) missing.push("mention risk/impact or a tradeoff");
+      if (!hasAction) missing.push("include a next action or recommendation");
+      if (!lengthOK) missing.push("write a bit more detail");
+      if (!keywordHit) missing.push("use key vocabulary from the lesson");
+
+      return { pts, missing };
+    }
+
+    function showReflection(promptText) {
+      reflectionPrompt.textContent = promptText;
+      reflectionBlock.classList.remove("hidden");
+      reflectionResult.classList.add("hidden");
+      finishLab.classList.add("hidden");
+    }
+
+    function completeLab() {
+      const p = getProg();
+      p.lab = true;
+      setProg(p);
+      doneCard.classList.remove("hidden");
+      doneCard.scrollIntoView({ behavior:"smooth" });
+    }
+
+    // --- Template renderers (different per category) ---
+    function renderEthicsLab() {
+      scenarioTitle.textContent = "Scenario: Permission & scope";
+      scenarioText.textContent =
+        "A student finds a misconfigured login page on a school subdomain and wants to 'test' it. " +
+        "You are asked what is allowed and what the safest next step is.";
+
+      artifactTag.textContent = "policy snippet";
+      artifactText.textContent =
+`Classroom Rules:
+- Only test systems explicitly provided for labs.
+- No scanning or testing school production systems.
+- If you find a possible issue: document it and report to the instructor.`;
+      artifactHint.textContent = "Use the policy to justify your decision.";
+
+      interactionBlock.innerHTML = `
+        <p class="text-slate-300 font-medium">Choose the best response:</p>
+        <div class="space-y-3">
+          <button data-choice="bad" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Tell them to run tests anyway as long as they don't cause damage.
+          </button>
+          <button data-choice="good" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Tell them to stop and report it to the instructor with notes/screenshots.
+          </button>
+          <button data-choice="meh" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Ignore it and move on — it's probably not important.
+          </button>
+        </div>
+        <div id="decision" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 mt-4"></div>
+      `;
+
+      const decisionBox = () => document.getElementById("decision");
+      const buttons = interactionBlock.querySelectorAll("button[data-choice]");
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.disabled = true);
+          const c = btn.dataset.choice;
+          const box = decisionBox();
+          box.classList.remove("hidden");
+
+          if (c === "good") {
+            box.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-green-400 font-semibold">Good:</span> This follows authorization + scope and reduces risk.</p>`;
+          } else if (c === "meh") {
+            box.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-yellow-400 font-semibold">Not ideal:</span> Ignoring issues misses a learning opportunity and leaves risk unreported.</p>`;
+          } else {
+            box.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-red-400 font-semibold">Risky:</span> Testing without authorization violates ethics and could cause harm.</p>`;
+          }
+
+          showReflection("Explain why authorization and scope matter here. What would you do next, and what evidence would you record?");
+        });
+      });
+    }
+
+    function renderThreatActorLab() {
+      scenarioTitle.textContent = "Scenario: Actor attribution (high-level)";
+      scenarioText.textContent =
+        "A small business reports repeated credential-stuffing attempts on employee accounts. " +
+        "You must estimate the most likely threat actor category and justify your confidence.";
+
+      artifactTag.textContent = "login telemetry";
+      artifactText.textContent =
+`Signals:
+- 1,200 failed logins in 20 minutes
+- Many IPs, many reused passwords
+- Targeting email accounts
+- No ransom note, no destructive changes observed`;
+      artifactHint.textContent = "Choose actor type based on motive + behavior evidence.";
+
+      interactionBlock.innerHTML = `
+        <p class="text-slate-300 font-medium">Pick the most likely actor category:</p>
+        <div class="space-y-3">
+          <button data-actor="cybercrime" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Cybercriminal (financially motivated)
+          </button>
+          <button data-actor="nation" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Nation-state (espionage motivated)
+          </button>
+          <button data-actor="insider" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Insider (employee)
+          </button>
+        </div>
+
+        <div class="mt-4 space-y-2">
+          <label class="text-slate-300 text-sm font-medium">Confidence (1–5)</label>
+          <input id="conf" type="range" min="1" max="5" value="3" class="w-full" />
+          <p class="text-slate-400 text-sm">Confidence: <span id="confVal" class="text-teal-300 font-semibold">3</span>/5</p>
+        </div>
+
+        <div id="decision" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 mt-4"></div>
+      `;
+
+      const conf = document.getElementById("conf");
+      const confVal = document.getElementById("confVal");
+      conf.addEventListener("input", () => confVal.textContent = conf.value);
+
+      const decision = document.getElementById("decision");
+      const buttons = interactionBlock.querySelectorAll("button[data-actor]");
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.disabled = true);
+          decision.classList.remove("hidden");
+
+          const actor = btn.dataset.actor;
+          if (actor === "cybercrime") {
+            decision.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-green-400 font-semibold">Good fit:</span> Credential stuffing + scale often maps to cybercrime.</p>`;
+          } else if (actor === "nation") {
+            decision.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-yellow-400 font-semibold">Possible but less likely:</span> evidence points more to broad account takeover than targeted espionage.</p>`;
+          } else {
+            decision.innerHTML = `<p class="text-slate-200 text-sm"><span class="text-yellow-400 font-semibold">Less likely:</span> behavior shows many IPs and automation, not a single insider source.</p>`;
+          }
+
+          showReflection("Justify your chosen actor and confidence. Which signals support it, and what additional evidence would increase certainty?");
+        });
+      });
+    }
+
+    function renderMalwareLab() {
+      scenarioTitle.textContent = "Scenario: Malware triage (safe simulation)";
+      scenarioText.textContent =
+        "An endpoint tool flags a suspicious process. You must classify what type of malware it resembles based on indicators and choose a first response.";
+
+      artifactTag.textContent = "EDR alert";
+      artifactText.textContent =
+`Alert:
+- Process: invoice_viewer.exe
+- Behavior: encrypts many files rapidly
+- Creates: README_RECOVER_FILES.txt
+- Tries to contact: hxxp://example[.]invalid/payment
+- Deletes shadow copies: vssadmin delete shadows`;
+      artifactHint.textContent = "Classify based on behavior (encryption + ransom note).";
+
+      interactionBlock.innerHTML = `
+        <p class="text-slate-300 font-medium">Classify the malware type:</p>
+        <div class="space-y-3">
+          <button data-type="ransomware" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Ransomware
+          </button>
+          <button data-type="trojan" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Trojan (generic)
+          </button>
+          <button data-type="worm" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Worm
+          </button>
+        </div>
+
+        <p class="text-slate-300 font-medium mt-5">Pick the best immediate response:</p>
+        <div class="space-y-3">
+          <button data-response="isolate" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Isolate the host from the network and preserve evidence
+          </button>
+          <button data-response="pay" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Pay the ransom immediately to restore files
+          </button>
+          <button data-response="ignore" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Ignore it until users complain
+          </button>
+        </div>
+
+        <div id="decision" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 mt-4"></div>
+      `;
+
+      let chosenType = null;
+      let chosenResp = null;
+      const decision = document.getElementById("decision");
+
+      function maybeProceed() {
+        if (!chosenType || !chosenResp) return;
+        decision.classList.remove("hidden");
+
+        const typeMsg = (chosenType === "ransomware")
+          ? `<span class="text-green-400 font-semibold">Correct:</span> encryption + ransom note + shadow copy deletion = ransomware.`
+          : `<span class="text-yellow-400 font-semibold">Not best:</span> the indicators strongly match ransomware.`;
+
+        const respMsg = (chosenResp === "isolate")
+          ? `<span class="text-green-400 font-semibold">Good response:</span> isolate + preserve evidence limits spread and supports recovery.`
+          : (chosenResp === "pay")
+            ? `<span class="text-red-400 font-semibold">Risky:</span> paying doesn’t guarantee recovery and can encourage future attacks.`
+            : `<span class="text-red-400 font-semibold">Bad response:</span> delaying increases damage and spread.`;
+
+        decision.innerHTML = `<p class="text-slate-200 text-sm">${typeMsg}<br>${respMsg}</p>`;
+
+        showReflection("Explain which indicators led to your malware classification. What containment action matters most in the first 10 minutes, and why?");
+      }
+
+      interactionBlock.querySelectorAll("button[data-type]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          chosenType = btn.dataset.type;
+          btn.classList.add("border-teal-400");
+          interactionBlock.querySelectorAll("button[data-type]").forEach(b => b.disabled = true);
+          maybeProceed();
+        });
+      });
+
+      interactionBlock.querySelectorAll("button[data-response]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          chosenResp = btn.dataset.response;
+          btn.classList.add("border-teal-400");
+          interactionBlock.querySelectorAll("button[data-response]").forEach(b => b.disabled = true);
+          maybeProceed();
+        });
+      });
+    }
+
+    function renderCryptoLab() {
+      scenarioTitle.textContent = "Scenario: Password storage (simulation)";
+      scenarioText.textContent =
+        "A developer says: 'We store passwords by hashing them.' You must assess whether it’s safe and recommend improvements.";
+
+      artifactTag.textContent = "database snippet";
+      artifactText.textContent =
+`users table:
+- alice : 5f4dcc3b5aa765d61d8327deb882cf99
+- bob   : 5f4dcc3b5aa765d61d8327deb882cf99
+
+Notes:
+- same hash appears for different users
+- no salt column shown`;
+      artifactHint.textContent = "Same hash likely means same password → indicates lack of unique salt.";
+
+      interactionBlock.innerHTML = `
+        <p class="text-slate-300 font-medium">What is the biggest issue shown?</p>
+        <div class="space-y-3">
+          <button data-issue="salt" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Missing unique salt per password
+          </button>
+          <button data-issue="encryption" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            They used hashing instead of encryption
+          </button>
+          <button data-issue="none" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            No issue — hashing is always safe
+          </button>
+        </div>
+
+        <p class="text-slate-300 font-medium mt-5">Pick the best improvement:</p>
+        <div class="space-y-3">
+          <button data-fix="salt+slow" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Use per-user salts + a slow password hashing algorithm (bcrypt/Argon2)
+          </button>
+          <button data-fix="md5" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Keep MD5 but require 8+ character passwords
+          </button>
+          <button data-fix="plain" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">
+            Store passwords in plaintext but restrict DB access
+          </button>
+        </div>
+
+        <div id="decision" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 mt-4"></div>
+      `;
+
+      let issue = null;
+      let fix = null;
+      const decision = document.getElementById("decision");
+
+      function maybeProceed() {
+        if (!issue || !fix) return;
+        decision.classList.remove("hidden");
+
+        const issueMsg = (issue === "salt")
+          ? `<span class="text-green-400 font-semibold">Correct:</span> identical hashes suggest no unique salt.`
+          : (issue === "encryption")
+            ? `<span class="text-yellow-400 font-semibold">Close:</span> hashing is correct for passwords, but it must be salted + slow.`
+            : `<span class="text-red-400 font-semibold">Incorrect:</span> hashing alone can be weak if unsalted/fast.`;
+
+        const fixMsg = (fix === "salt+slow")
+          ? `<span class="text-green-400 font-semibold">Best fix:</span> unique salts + slow hashing defends against rainbow tables and cracking speed.`
+          : (fix === "md5")
+            ? `<span class="text-red-400 font-semibold">Not enough:</span> MD5 is fast and weak for passwords.`
+            : `<span class="text-red-400 font-semibold">Never:</span> plaintext is unsafe even with restricted access.`;
+
+        decision.innerHTML = `<p class="text-slate-200 text-sm">${issueMsg}<br>${fixMsg}</p>`;
+
+        showReflection("Explain why salting matters and why 'slow' password hashing is recommended. What risk does it reduce?");
+      }
+
+      interactionBlock.querySelectorAll("button[data-issue]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          issue = btn.dataset.issue;
+          btn.classList.add("border-teal-400");
+          interactionBlock.querySelectorAll("button[data-issue]").forEach(b => b.disabled = true);
+          maybeProceed();
+        });
+      });
+
+      interactionBlock.querySelectorAll("button[data-fix]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          fix = btn.dataset.fix;
+          btn.classList.add("border-teal-400");
+          interactionBlock.querySelectorAll("button[data-fix]").forEach(b => b.disabled = true);
+          maybeProceed();
+        });
+      });
+    }
+
+    function renderFallbackLab() {
+      scenarioTitle.textContent = "Scenario: Security reasoning";
+      scenarioText.textContent = "Make a decision based on the evidence and explain your reasoning.";
+      artifactTag.textContent = "evidence";
+      artifactText.textContent = "Evidence placeholder.";
+      artifactHint.textContent = "Use evidence to justify your decision.";
+
+      interactionBlock.innerHTML = `
+        <p class="text-slate-300 font-medium">Choose the best option:</p>
+        <div class="space-y-3">
+          <button data-x="1" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">Option A</button>
+          <button data-x="2" class="w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition">Option B</button>
+        </div>
+      `;
+
+      interactionBlock.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          interactionBlock.querySelectorAll("button").forEach(b => b.disabled = true);
+          showReflection("Explain why you chose that option and what evidence supports it.");
+        });
+      });
+    }
+
+    // reflection submit
+    submitReflection.addEventListener("click", () => {
+      const ans = reflectionAnswer.value.trim();
+      if (ans.length < 20) {
+        alert("Write a bit more before submitting.");
+        return;
+      }
+
+      // per-category vocab targets
+      const vocab = {
+        ethics: ["authorization","consent","scope","policy"],
+        threat_actors: ["motive","capability","evidence","confidence"],
+        malware: ["indicator","behavior","containment","ransomware"],
+        crypto: ["hash","salt","bcrypt","argon2"],
+        attack_analysis: ["pattern","evidence","risk","mitigation"]
+      };
+
+      const keys = vocab[L.category] || ["evidence","risk","action"];
+      const { pts, missing } = scoreReflection(ans, keys);
+
+      scoreEl.textContent = `${pts}/5`;
+      feedbackEl.textContent = missing.length
+        ? `Improve by: ${missing.join(", ")}.`
+        : "Strong reasoning — clear evidence, tradeoffs, and next steps.";
+
+      reflectionResult.classList.remove("hidden");
+      finishLab.classList.remove("hidden");
+    });
+
+    finishLab.addEventListener("click", () => {
+      completeLab();
+    });
+
+    // init
+    function init() {
+      const cat = L.category;
+
+      if (cat === "ethics") renderEthicsLab();
+      else if (cat === "threat_actors") renderThreatActorLab();
+      else if (cat === "malware") renderMalwareLab();
+      else if (cat === "crypto") renderCryptoLab();
+      else renderFallbackLab();
+    }
+
+    init();
+  </script>
+</body>
+</html>

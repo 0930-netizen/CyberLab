@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <main class="max-w-6xl mx-auto px-10 py-12 space-y-8">
+    <a href="unit.html" class="text-teal-400">← Back to Unit</a>
+
+    <header class="space-y-2">
+      <h1 class="text-3xl font-semibold">Interactive Lab: SSH Brute Force Triage (Simulation)</h1>
+      <p class="text-slate-400">
+        You are the analyst. Review evidence, make decisions, then justify your reasoning.
+        This lab is a safe simulation — no real attacking.
+      </p>
+    </header>
+
+    <!-- LAYOUT -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT: STEPS -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- STEP NAV -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
+          <div class="space-y-1">
+            <p class="text-sm text-slate-400">Lab Progress</p>
+            <p class="text-lg font-semibold" id="stepTitle">Step 1 of 4: Identify the pattern</p>
+          </div>
+          <div class="flex gap-2">
+            <span id="pill1" class="px-3 py-1 rounded-full text-xs bg-teal-500/10 text-teal-300">1</span>
+            <span id="pill2" class="px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300">2</span>
+            <span id="pill3" class="px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300">3</span>
+            <span id="pill4" class="px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300">4</span>
+          </div>
+        </div>
+
+        <!-- STEP CARD -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-5">
+          <h2 class="text-xl font-semibold" id="stepHeader">Step 1: Identify the pattern</h2>
+          <p class="text-slate-300" id="stepDesc">
+            Review the evidence in the panel on the right. What does it most likely indicate?
+          </p>
+
+          <!-- OPTIONS -->
+          <div id="options" class="space-y-3"></div>
+
+          <!-- FEEDBACK -->
+          <div id="decisionFeedback" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+            <p class="text-slate-400 text-xs uppercase tracking-wide mb-2">Decision Feedback</p>
+            <p id="decisionText" class="text-slate-200 text-sm"></p>
+          </div>
+
+          <!-- REFLECTION -->
+          <div id="reflectionBlock" class="hidden space-y-3 border-t border-slate-800 pt-5">
+            <div class="flex items-center justify-between">
+              <p class="font-semibold">Reflection</p>
+              <span class="px-3 py-1 rounded-full text-xs bg-teal-500/10 text-teal-300">Why it matters</span>
+            </div>
+
+            <p id="reflectionPrompt" class="text-slate-200 text-sm"></p>
+
+            <textarea id="reflectionAnswer"
+              class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              rows="4"
+              placeholder="Write 2–5 sentences. Reference evidence + reasoning + risk."
+            ></textarea>
+
+            <div class="flex items-center justify-between gap-3">
+              <button id="submitReflection"
+                class="bg-slate-200 text-black px-5 py-2 rounded-xl font-medium hover:bg-white transition">
+                Submit Reflection
+              </button>
+
+              <button id="nextStep"
+                class="hidden bg-teal-500 text-black px-5 py-2 rounded-xl font-medium hover:bg-teal-400 transition">
+                Next Step →
+              </button>
+            </div>
+
+            <div id="reflectionResult" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-300 font-medium">Mental Mastery Score (this step)</p>
+                <p id="stepScore" class="text-teal-300 font-semibold">0/5</p>
+              </div>
+              <p id="reflectionFeedback" class="text-slate-200 text-sm"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FINAL SUMMARY -->
+        <div id="finalSummary" class="hidden bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h2 class="text-xl font-semibold">✅ Lab Complete</h2>
+          <p class="text-slate-300">
+            You completed all steps and provided reasoning. Your progress is saved (locally).
+          </p>
+
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+              <p class="text-slate-300 font-medium">Overall Mental Mastery</p>
+              <p id="overallScore" class="text-teal-300 font-semibold">0/20</p>
+            </div>
+            <p class="text-slate-400 text-sm mt-2" id="overallFeedback"></p>
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <a href="unit.html" class="text-teal-400">← Return to Unit</a>
+            <button id="markLabComplete"
+              class="bg-teal-500 text-black px-5 py-2 rounded-xl font-medium hover:bg-teal-400 transition">
+              Mark Lab Complete (Unlock Quiz)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: EVIDENCE PANEL -->
+      <aside class="space-y-6">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Evidence Panel</h3>
+            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300" id="evidenceTag">auth.log</span>
+          </div>
+
+          <div class="bg-black/60 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-200 leading-5">
+<pre id="evidenceText">Feb 07 09:12:01 server sshd[1842]: Failed password for invalid user admin from 185.92.1.44 port 51221 ssh2
+Feb 07 09:12:03 server sshd[1842]: Failed password for invalid user admin from 185.92.1.44 port 51221 ssh2
+Feb 07 09:12:08 server sshd[1911]: Failed password for root from 203.0.113.88 port 60011 ssh2
+Feb 07 09:12:10 server sshd[1911]: Failed password for root from 203.0.113.88 port 60011 ssh2
+Feb 07 09:12:14 server sshd[1970]: Failed password for invalid user test from 198.51.100.17 port 39001 ssh2
+Feb 07 09:12:18 server sshd[1970]: Failed password for invalid user test from 198.51.100.17 port 39001 ssh2
+...</pre>
+          </div>
+
+          <p class="text-slate-400 text-sm" id="evidenceHint">
+            Tip: Look for repeated failures, many IPs, common usernames, and time clustering.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <h3 class="font-semibold">Your Notes</h3>
+          <textarea
+            class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            rows="7"
+            placeholder="Jot observations here (optional)..."
+          ></textarea>
+          <p class="text-xs text-slate-500">
+            Notes aren’t graded — they’re here to support analyst thinking.
+          </p>
+        </div>
+      </aside>
+    </section>
+
+  </main>
+
+  <script>
+    const UNIT_KEY = "networkUnit";
+
+    function getProgress() {
+      return JSON.parse(localStorage.getItem(UNIT_KEY)) || {
+        reading: false,
+        lab: false,
+        quiz: false
+      };
+    }
+    function setProgress(p) {
+      localStorage.setItem(UNIT_KEY, JSON.stringify(p));
+    }
+
+    // --- Lab state ---
+    let currentStep = 1;
+    let overall = 0; // total points out of 20
+    const stepPoints = {1:0,2:0,3:0,4:0};
+    let decisionMade = false;
+
+    // --- UI refs ---
+    const stepTitle = document.getElementById("stepTitle");
+    const stepHeader = document.getElementById("stepHeader");
+    const stepDesc = document.getElementById("stepDesc");
+    const optionsDiv = document.getElementById("options");
+    const decisionFeedback = document.getElementById("decisionFeedback");
+    const decisionText = document.getElementById("decisionText");
+
+    const reflectionBlock = document.getElementById("reflectionBlock");
+    const reflectionPrompt = document.getElementById("reflectionPrompt");
+    const reflectionAnswer = document.getElementById("reflectionAnswer");
+    const submitReflection = document.getElementById("submitReflection");
+    const nextStepBtn = document.getElementById("nextStep");
+
+    const reflectionResult = document.getElementById("reflectionResult");
+    const stepScoreEl = document.getElementById("stepScore");
+    const reflectionFeedback = document.getElementById("reflectionFeedback");
+
+    const evidenceText = document.getElementById("evidenceText");
+    const evidenceTag = document.getElementById("evidenceTag");
+    const evidenceHint = document.getElementById("evidenceHint");
+
+    const finalSummary = document.getElementById("finalSummary");
+    const overallScore = document.getElementById("overallScore");
+    const overallFeedback = document.getElementById("overallFeedback");
+    const markLabCompleteBtn = document.getElementById("markLabComplete");
+
+    function pillActive(n) {
+      for (let i=1;i<=4;i++){
+        const pill = document.getElementById("pill"+i);
+        if (i === n) pill.className = "px-3 py-1 rounded-full text-xs bg-teal-500/10 text-teal-300";
+        else if (i < n) pill.className = "px-3 py-1 rounded-full text-xs bg-green-500/10 text-green-400";
+        else pill.className = "px-3 py-1 rounded-full text-xs bg-slate-800 text-slate-300";
+      }
+    }
+
+    const steps = {
+      1: {
+        title: "Step 1 of 4: Identify the pattern",
+        header: "Step 1: Identify the pattern",
+        desc: "Based on the evidence, what is the most likely explanation?",
+        evidence: {
+          tag: "auth.log",
+          text: `Feb 07 09:12:01 server sshd[1842]: Failed password for invalid user admin from 185.92.1.44 port 51221 ssh2
+Feb 07 09:12:03 server sshd[1842]: Failed password for invalid user admin from 185.92.1.44 port 51221 ssh2
+Feb 07 09:12:08 server sshd[1911]: Failed password for root from 203.0.113.88 port 60011 ssh2
+Feb 07 09:12:10 server sshd[1911]: Failed password for root from 203.0.113.88 port 60011 ssh2
+Feb 07 09:12:14 server sshd[1970]: Failed password for invalid user test from 198.51.100.17 port 39001 ssh2
+Feb 07 09:12:18 server sshd[1970]: Failed password for invalid user test from 198.51.100.17 port 39001 ssh2
+...`,
+          hint: "Look for repeated failures, many IPs, common usernames, and time clustering."
+        },
+        options: [
+          { id:"a", label:"Normal admin activity", correct:false,
+            fb:"Unlikely — failures across many IPs and users in a tight time window is suspicious." },
+          { id:"b", label:"SSH brute-force / credential guessing attempts", correct:true,
+            fb:"Yes — repeated failed logins across many IPs is consistent with brute-force activity." },
+          { id:"c", label:"A DNS misconfiguration", correct:false,
+            fb:"Doesn’t fit — DNS issues wouldn’t show repeated SSH failed passwords." }
+        ],
+        reflect: "In your own words, what evidence supports your conclusion (timing, usernames, IP behavior), and why does that matter for incident response?"
+      },
+      2: {
+        title: "Step 2 of 4: Choose a containment action",
+        header: "Step 2: Containment decision",
+        desc: "Choose the best immediate containment approach based on the situation.",
+        evidence: {
+          tag: "firewall",
+          text: `Current inbound rules:
+- Allow 22/tcp from ANY (0.0.0.0/0)  ✅
+- Allow 80/tcp from ANY
+- Allow 443/tcp from ANY
+- Allow 3389/tcp from ANY (disabled)
+
+Asset: student-web-server (public IP)
+Goal: reduce attack surface without breaking legitimate access.`,
+          hint: "Containment should reduce risk quickly while keeping necessary access possible."
+        },
+        options: [
+          { id:"a", label:"Leave SSH open; monitor only", correct:false,
+            fb:"Too risky — continuing attempts increase the chance of compromise." },
+          { id:"b", label:"Block SSH from the internet; allow only trusted IP range/VPN", correct:true,
+            fb:"Best choice — reduces attack surface while preserving admin access from trusted sources." },
+          { id:"c", label:"Shut down the entire server immediately", correct:false,
+            fb:"Sometimes warranted, but it’s disruptive; the evidence supports targeted restriction first." }
+        ],
+        reflect: "Explain why your containment choice balances security and operations. What tradeoffs are you making?"
+      },
+      3: {
+        title: "Step 3 of 4: Validate if compromise occurred",
+        header: "Step 3: Check for compromise",
+        desc: "You restricted SSH. Now you must assess: did anyone get in? Choose the best next check.",
+        evidence: {
+          tag: "auth.log (success?)",
+          text: `Feb 07 09:12:01 Failed password for invalid user admin from 185.92.1.44
+Feb 07 09:12:08 Failed password for root from 203.0.113.88
+Feb 07 09:13:44 Accepted password for studentadmin from 10.10.5.22 port 53111 ssh2
+Feb 07 09:13:45 session opened for user studentadmin (uid=1002)
+Feb 07 09:13:59 sudo: studentadmin : TTY=pts/1 ; PWD=/home/studentadmin ; USER=root ; COMMAND=/usr/bin/apt update
+...`,
+          hint: "Look for 'Accepted password', session opened, sudo use, unfamiliar sources."
+        },
+        options: [
+          { id:"a", label:"Search for 'Accepted password' and verify the source IP is trusted", correct:true,
+            fb:"Yes — confirming successful logins and verifying the source is a strong next step." },
+          { id:"b", label:"Ignore auth logs; check only CPU usage", correct:false,
+            fb:"CPU can be misleading. Auth logs directly answer whether a login succeeded." },
+          { id:"c", label:"Assume compromise because brute force happened", correct:false,
+            fb:"You shouldn’t assume — verify using logs and context." }
+        ],
+        reflect: "What would convince you that the login was legitimate vs suspicious? Mention at least two checks."
+      },
+      4: {
+        title: "Step 4 of 4: Recommend hardening",
+        header: "Step 4: Prevent it from happening again",
+        desc: "Pick the most effective long-term hardening plan.",
+        evidence: {
+          tag: "hardening plan",
+          text: `Constraints:
+- Students may SSH for certain labs (from school network)
+- Keep admin access manageable
+- Prefer low-cost best practices
+
+Pick the best plan:`,
+          hint: "Think: allowlist/VPN, keys, disable root login, rate limits, MFA where possible."
+        },
+        options: [
+          { id:"a", label:"Keep password logins and just 'use stronger passwords'", correct:false,
+            fb:"Better passwords help, but passwords alone are still brute-forceable." },
+          { id:"b", label:"Allowlist/VPN + SSH keys + disable root login + rate-limiting (fail2ban)", correct:true,
+            fb:"Strong plan — layered controls reduce both exposure and successful guessing." },
+          { id:"c", label:"Block all inbound traffic permanently", correct:false,
+            fb:"Not realistic — the system needs to provide services and student access." }
+        ],
+        reflect: "Explain how your hardening plan layers defenses. Which control reduces exposure, and which reduces credential risk?"
+      }
+    };
+
+    function resetStepUI() {
+      decisionMade = false;
+      optionsDiv.innerHTML = "";
+      decisionFeedback.classList.add("hidden");
+      reflectionBlock.classList.add("hidden");
+      reflectionResult.classList.add("hidden");
+      reflectionAnswer.value = "";
+      nextStepBtn.classList.add("hidden");
+    }
+
+    function renderStep(n) {
+      currentStep = n;
+      const s = steps[n];
+
+      pillActive(n);
+      stepTitle.textContent = s.title;
+      stepHeader.textContent = s.header;
+      stepDesc.textContent = s.desc;
+
+      evidenceTag.textContent = s.evidence.tag;
+      evidenceText.textContent = s.evidence.text;
+      evidenceHint.textContent = s.evidence.hint;
+
+      resetStepUI();
+
+      s.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition";
+        btn.innerHTML = `
+          <div class="flex items-center justify-between">
+            <p class="font-medium text-slate-200">${opt.label}</p>
+            <span class="text-slate-500">Select</span>
+          </div>
+        `;
+        btn.addEventListener("click", () => {
+          if (decisionMade) return;
+          decisionMade = true;
+
+          // Lock all options visually
+          [...optionsDiv.children].forEach(child => {
+            child.classList.add("opacity-70");
+            child.disabled = true;
+          });
+
+          // Show decision feedback
+          decisionFeedback.classList.remove("hidden");
+          decisionText.textContent = opt.fb;
+
+          // Reveal reflection
+          reflectionBlock.classList.remove("hidden");
+          reflectionPrompt.textContent = s.reflect;
+
+          // Save a base point for making a decision; +1 if correct
+          stepPoints[n] = 1 + (opt.correct ? 1 : 0);
+        });
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function scoreReflectionText(text) {
+      const t = text.toLowerCase();
+      let pts = 0;
+
+      // Reasoning buckets
+      const evidence = ["evidence", "log", "failed", "accepted", "ip", "time", "attempt", "repeated", "many"];
+      const risk = ["risk", "attack", "attacker", "breach", "compromise", "unauthorized", "brute", "scan"];
+      const impact = ["access", "credentials", "root", "data", "lateral", "pivot", "service", "system"];
+      const controls = ["restrict", "allowlist", "vpn", "keys", "disable root", "fail2ban", "rate", "firewall"];
+
+      const hasEvidence = evidence.some(k => t.includes(k));
+      const hasRisk = risk.some(k => t.includes(k));
+      const hasImpact = impact.some(k => t.includes(k));
+      const hasControls = controls.some(k => t.includes(k));
+      const lengthOK = t.trim().split(/\s+/).length >= 30;
+
+      if (hasEvidence) pts++;
+      if (hasRisk) pts++;
+      if (hasImpact) pts++;
+      if (hasControls) pts++;
+      if (lengthOK) pts++;
+
+      const missing = [];
+      if (!hasEvidence) missing.push("reference specific evidence (logs/IPs/timing)");
+      if (!hasRisk) missing.push("state the risk/threat");
+      if (!hasImpact) missing.push("describe impact if successful");
+      if (!hasControls) missing.push("connect to a control/mitigation");
+      if (!lengthOK) missing.push("write a bit more");
+
+      return { pts, missing };
+    }
+
+    submitReflection.addEventListener("click", () => {
+      if (!decisionMade) {
+        alert("Choose an option first (make a security decision), then reflect.");
+        return;
+      }
+
+      const ans = reflectionAnswer.value.trim();
+      if (ans.length < 15) {
+        alert("Write a bit more before submitting.");
+        return;
+      }
+
+      const { pts, missing } = scoreReflectionText(ans);
+
+      // Step points:
+      // - base already stored from decision (1–2)
+      // - reflection score contributes up to 5
+      // We'll normalize this step to 5 max by mapping:
+      // decision base (1–2) + reflection (0–5) -> capped at 5
+      let stepTotal = Math.min(5, stepPoints[currentStep] + pts - 1); // simple scaling
+      stepPoints[currentStep] = stepTotal;
+
+      stepScoreEl.textContent = `${stepTotal}/5`;
+
+      reflectionFeedback.textContent = missing.length
+        ? `To strengthen your answer, ${missing.join(", ")}.`
+        : "Strong reasoning — you connected evidence → threat → impact → mitigation.";
+
+      reflectionResult.classList.remove("hidden");
+      nextStepBtn.classList.remove("hidden");
+    });
+
+    nextStepBtn.addEventListener("click", () => {
+      if (currentStep < 4) {
+        renderStep(currentStep + 1);
+      } else {
+        // Finish
+        finalSummary.classList.remove("hidden");
+        document.querySelector("section.grid").scrollIntoView({ behavior: "smooth" });
+
+        overall = stepPoints[1] + stepPoints[2] + stepPoints[3] + stepPoints[4];
+        overallScore.textContent = `${overall}/20`;
+
+        if (overall >= 17) overallFeedback.textContent = "Analyst-level work — excellent reasoning and strong control choices.";
+        else if (overall >= 12) overallFeedback.textContent = "Solid — you’re thinking like an analyst. Strengthen evidence-based justification.";
+        else overallFeedback.textContent = "Keep practicing — focus on linking evidence to threats and explaining tradeoffs.";
+
+        // Hide the step card’s reflection next button to prevent confusion
+        nextStepBtn.classList.add("hidden");
+      }
+    });
+
+    markLabCompleteBtn.addEventListener("click", () => {
+      const p = getProgress();
+      p.lab = true;
+      setProgress(p);
+      alert("✅ Lab marked complete! Quiz will be unlocked on the Unit page.");
+    });
+
+    // Init
+    function init() {
+      pillActive(1);
+      renderStep(1);
+    }
+    init();
+  </script>
+</body>
+</html>

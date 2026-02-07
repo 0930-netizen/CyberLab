@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <main class="max-w-4xl mx-auto px-10 py-12 space-y-8">
+    <a href="unit.html" class="text-teal-400">← Back to Unit</a>
+
+    <header class="space-y-2">
+      <h1 class="text-3xl font-semibold">Quiz: Network Fundamentals</h1>
+      <p class="text-slate-400">
+        Answer the questions below. Your score will be shown immediately.
+      </p>
+    </header>
+
+    <section class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-8">
+
+      <!-- Q1 -->
+      <div class="space-y-3">
+        <p class="font-medium">1) What is a port?</p>
+        <label class="block text-slate-300"><input type="radio" name="q1" value="a"> A physical cable used in networking</label>
+        <label class="block text-slate-300"><input type="radio" name="q1" value="b"> A numbered identifier for a service on a device</label>
+        <label class="block text-slate-300"><input type="radio" name="q1" value="c"> A type of firewall rule</label>
+      </div>
+
+      <!-- Q2 -->
+      <div class="space-y-3">
+        <p class="font-medium">2) What is SSH mainly used for?</p>
+        <label class="block text-slate-300"><input type="radio" name="q2" value="a"> Remote secure access to systems</label>
+        <label class="block text-slate-300"><input type="radio" name="q2" value="b"> Encrypting Wi-Fi networks</label>
+        <label class="block text-slate-300"><input type="radio" name="q2" value="c"> Scanning for open ports</label>
+      </div>
+
+      <!-- Q3 -->
+      <div class="space-y-3">
+        <p class="font-medium">3) Why are repeated connection attempts from many IPs suspicious?</p>
+        <label class="block text-slate-300"><input type="radio" name="q3" value="a"> It usually means the server is offline</label>
+        <label class="block text-slate-300"><input type="radio" name="q3" value="b"> It can indicate scanning or brute force behavior</label>
+        <label class="block text-slate-300"><input type="radio" name="q3" value="c"> It proves the attacker successfully logged in</label>
+      </div>
+
+      <!-- Q4 -->
+      <div class="space-y-3">
+        <p class="font-medium">4) What is the best reason to restrict port 22?</p>
+        <label class="block text-slate-300"><input type="radio" name="q4" value="a"> It makes the internet faster</label>
+        <label class="block text-slate-300"><input type="radio" name="q4" value="b"> It reduces the chance of unauthorized SSH access</label>
+        <label class="block text-slate-300"><input type="radio" name="q4" value="c"> It blocks all malware automatically</label>
+      </div>
+
+      <!-- Q5 -->
+      <div class="space-y-3">
+        <p class="font-medium">5) Which is an example of a good firewall policy for SSH?</p>
+        <label class="block text-slate-300"><input type="radio" name="q5" value="a"> Allow SSH from all IPs</label>
+        <label class="block text-slate-300"><input type="radio" name="q5" value="b"> Allow SSH only from trusted networks</label>
+        <label class="block text-slate-300"><input type="radio" name="q5" value="c"> Disable all firewalls</label>
+      </div>
+
+      <button id="submitQuizBtn"
+        class="bg-slate-200 text-black px-5 py-2 rounded-xl font-medium hover:bg-white transition">
+        Submit Quiz
+      </button>
+
+      <div id="quizResults" class="hidden border-t border-slate-800 pt-6 space-y-3">
+        <p class="text-lg font-semibold">Results</p>
+        <p id="scoreText" class="text-teal-400 font-semibold text-xl">0/5</p>
+        <p id="resultMsg" class="text-slate-300 text-sm"></p>
+
+        <button id="markQuizDoneBtn"
+          class="bg-teal-500 text-black px-5 py-2 rounded-xl font-medium hover:bg-teal-400 transition">
+          Mark Quiz Complete
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const UNIT_KEY = "networkUnit";
+
+    function getProgress() {
+      return JSON.parse(localStorage.getItem(UNIT_KEY)) || {
+        reading: false,
+        lab: false,
+        quiz: false
+      };
+    }
+
+    function setProgress(p) {
+      localStorage.setItem(UNIT_KEY, JSON.stringify(p));
+    }
+
+    const answers = {
+      q1: "b",
+      q2: "a",
+      q3: "b",
+      q4: "b",
+      q5: "b"
+    };
+
+    const submitBtn = document.getElementById("submitQuizBtn");
+    const resultsBox = document.getElementById("quizResults");
+    const scoreText = document.getElementById("scoreText");
+    const resultMsg = document.getElementById("resultMsg");
+    const markDoneBtn = document.getElementById("markQuizDoneBtn");
+
+    submitBtn.addEventListener("click", () => {
+      let score = 0;
+
+      for (const q in answers) {
+        const selected = document.querySelector(`input[name="${q}"]:checked`);
+        if (selected && selected.value === answers[q]) score++;
+      }
+
+      scoreText.textContent = `${score}/5`;
+
+      if (score === 5) {
+        resultMsg.textContent = "Excellent — strong understanding of ports, SSH, and why restriction matters.";
+      } else if (score >= 3) {
+        resultMsg.textContent = "Good work — review the reading and think about why repeated attempts are suspicious.";
+      } else {
+        resultMsg.textContent = "Keep going — revisit the readings and try again.";
+      }
+
+      resultsBox.classList.remove("hidden");
+    });
+
+    markDoneBtn.addEventListener("click", () => {
+      const p = getProgress();
+      p.quiz = true;
+      setProgress(p);
+      alert("✅ Quiz marked complete!");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Readings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <main class="max-w-4xl mx-auto px-10 py-12 space-y-8">
+    <a href="unit.html" class="text-teal-400">← Back to Unit</a>
+
+    <header class="space-y-2">
+      <h1 class="text-3xl font-semibold">Readings: Network Fundamentals</h1>
+      <p class="text-slate-400">
+        Read the concepts below, then mark this section complete.
+      </p>
+    </header>
+
+    <!-- READING CARD -->
+    <section class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-5">
+
+      <article class="space-y-2">
+        <h2 class="text-xl font-semibold text-teal-300">1. What is a Port?</h2>
+        <p class="text-slate-300">
+          A port is a numbered “doorway” on a device that network traffic uses to reach a specific service.
+          Ports range from <span class="font-mono">0–65535</span>.
+        </p>
+        <p class="text-slate-400 text-sm">
+          Example: SSH often uses port 22, and HTTP often uses port 80.
+        </p>
+      </article>
+
+      <article class="space-y-2">
+        <h2 class="text-xl font-semibold text-teal-300">2. What is SSH?</h2>
+        <p class="text-slate-300">
+          SSH (Secure Shell) is a protocol used to securely access and manage computers remotely.
+          Attackers often target SSH because it can provide direct access to a system if credentials are guessed or stolen.
+        </p>
+      </article>
+
+      <article class="space-y-2">
+        <h2 class="text-xl font-semibold text-teal-300">3. Why Repeated Attempts Matter</h2>
+        <p class="text-slate-300">
+          When you see many IPs repeatedly attempting to connect to a service (like SSH),
+          it can indicate scanning or brute-force behavior.
+        </p>
+        <p class="text-slate-400 text-sm">
+          Even if no login succeeded yet, repeated attempts increase risk.
+        </p>
+      </article>
+
+      <article class="space-y-2">
+        <h2 class="text-xl font-semibold text-teal-300">4. Firewall Restriction</h2>
+        <p class="text-slate-300">
+          A firewall rule can block or restrict inbound access to sensitive ports.
+          A common best practice is to allow SSH only from trusted networks (like your school or VPN).
+        </p>
+      </article>
+
+      <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
+        <p id="readingStatus" class="text-sm text-slate-400">
+          Status: Not completed
+        </p>
+
+        <button id="markReadingBtn"
+          class="bg-teal-500 text-black px-5 py-2 rounded-xl font-medium hover:bg-teal-400 transition">
+          Mark Reading Complete
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    const UNIT_KEY = "networkUnit";
+
+    function getProgress() {
+      return JSON.parse(localStorage.getItem(UNIT_KEY)) || {
+        reading: false,
+        lab: false,
+        quiz: false
+      };
+    }
+
+    function setProgress(p) {
+      localStorage.setItem(UNIT_KEY, JSON.stringify(p));
+    }
+
+    const statusEl = document.getElementById("readingStatus");
+    const btn = document.getElementById("markReadingBtn");
+
+    function render() {
+      const p = getProgress();
+      if (p.reading) {
+        statusEl.textContent = "Status: Completed ✅";
+        btn.disabled = true;
+        btn.textContent = "Completed";
+        btn.classList.add("opacity-60", "cursor-not-allowed");
+      }
+    }
+
+    btn.addEventListener("click", () => {
+      const p = getProgress();
+      p.reading = true;
+      setProgress(p);
+      alert("✅ Reading marked complete!");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

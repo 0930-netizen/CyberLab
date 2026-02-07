@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Glossary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <main class="max-w-4xl mx-auto px-10 py-12 space-y-8">
+    <a href="unit.html" class="text-teal-400">← Back to Unit</a>
+
+    <header class="space-y-2">
+      <h1 class="text-3xl font-semibold">Glossary: Network Fundamentals</h1>
+      <p class="text-slate-400">
+        Click a term to view its definition.
+      </p>
+    </header>
+
+    <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 space-y-6">
+
+      <input id="search"
+        class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        placeholder="Search terms (ex: SSH, port, firewall)..."
+      />
+
+      <div id="terms" class="space-y-3"></div>
+
+    </div>
+  </main>
+
+  <script>
+    const glossary = [
+      {
+        term: "Port",
+        definition: "A numbered identifier (0–65535) that helps direct network traffic to a specific service on a device."
+      },
+      {
+        term: "SSH (Secure Shell)",
+        definition: "A protocol used to securely access and manage computers remotely. Often targeted by attackers because it can provide direct system access."
+      },
+      {
+        term: "Firewall",
+        definition: "A security control that allows or blocks network traffic based on rules."
+      },
+      {
+        term: "Allowlist",
+        definition: "A security approach where only approved sources (like trusted IPs or networks) are allowed access."
+      },
+      {
+        term: "Brute Force Attack",
+        definition: "A technique where an attacker tries many password combinations repeatedly to guess credentials."
+      },
+      {
+        term: "Scanning",
+        definition: "A process used to discover open ports and services on a system. Often a first step before an attack."
+      },
+      {
+        term: "Inbound Traffic",
+        definition: "Network traffic coming into a device or network from an outside source."
+      }
+    ];
+
+    const termsDiv = document.getElementById("terms");
+    const searchInput = document.getElementById("search");
+
+    function render(list) {
+      termsDiv.innerHTML = "";
+
+      list.forEach(item => {
+        const card = document.createElement("button");
+        card.className =
+          "w-full text-left bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition";
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <p class="font-semibold text-slate-200">${item.term}</p>
+            <span class="text-slate-500">+</span>
+          </div>
+          <p class="mt-3 text-slate-400 text-sm hidden">${item.definition}</p>
+        `;
+
+        card.addEventListener("click", () => {
+          const def = card.querySelector("p.text-slate-400");
+          const icon = card.querySelector("span");
+          def.classList.toggle("hidden");
+          icon.textContent = def.classList.contains("hidden") ? "+" : "–";
+        });
+
+        termsDiv.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase().trim();
+      const filtered = glossary.filter(x =>
+        x.term.toLowerCase().includes(q) || x.definition.toLowerCase().includes(q)
+      );
+      render(filtered);
+    });
+
+    render(glossary);
+  </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KiloByte SOC - Unit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <nav class="flex items-center justify-between px-10 py-6 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-300">🛡️</div>
+      <p class="text-xl font-semibold">KiloByte SOC</p>
+    </div>
+    <a href="index.html" class="text-teal-400">Dashboard</a>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-10 py-12 space-y-8">
+    <a href="index.html" class="text-teal-400">← Back to Dashboard</a>
+
+    <header class="space-y-2">
+      <h1 class="text-3xl font-semibold">Unit 1: Cybersecurity Concepts</h1>
+      <p class="text-slate-400">Choose a lesson. Each lesson has Reading / Lab / Quiz / Glossary.</p>
+    </header>
+
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-teal-300">Lessons</h2>
+        <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300">Unit 1</span>
+      </div>
+
+      <div id="lessonTree" class="space-y-4"></div>
+    </section>
+  </main>
+
+  <script>
+    // Internal IDs for linking/storage only.
+    // Display names show NO numbers.
+    const UNIT = {
+      key: "unit1",
+      title: "Unit 1: Cybersecurity Concepts",
+      items: [
+        {
+          type: "group",
+          title: "Cybersecurity & Threat Actors",
+          children: [
+            { id: "cyber-hacking", name: "Cybersecurity & Hacking", category: "concepts" },
+            { id: "threat-actors", name: "Threat Actors", category: "threat_actors" },
+          ]
+        },
+        { type: "lesson", id: "cyber-ethics", name: "Cyber Ethics", category: "ethics" },
+        { type: "lesson", id: "careers", name: "Careers in Cybersecurity", category: "careers" },
+        { type: "lesson", id: "org-teams", name: "Cyber Organization & Teams", category: "org" },
+
+        {
+          type: "group",
+          title: "Malware",
+          children: [
+            { id: "malware-types", name: "Malware Types", category: "malware" },
+            { id: "malware-cases", name: "Malware Types & Cases", category: "malware" },
+            { id: "sandboxing", name: "Sandboxing Malware", category: "malware" },
+            { id: "kali-cli", name: "Kali Linux & CLI", category: "linux" },
+            { id: "ransomware-concepts", name: "How Ransomware Works (Concepts)", category: "malware" }
+          ]
+        },
+
+        { type: "lesson", id: "blog1", name: "Blog: Malware Creation & Analysis", category: "writing" },
+        { type: "lesson", id: "attack-types", name: "Cyber Attack Types & Analysis", category: "attack_analysis" },
+
+        {
+          type: "group",
+          title: "Cryptography",
+          children: [
+            { id: "crypto-overview", name: "Cryptography", category: "crypto" },
+            { id: "encryption", name: "Encryption", category: "crypto" },
+            { id: "hashing-salting", name: "Hashing & Salting", category: "crypto" }
+          ]
+        },
+
+        { type: "lesson", id: "final-exam", name: "Unit 1 Final Exam", category: "exam" }
+      ]
+    };
+
+    const tree = document.getElementById("lessonTree");
+
+    function lessonCard(lesson) {
+      const a = document.createElement("a");
+      a.href = `lesson.html?unit=${encodeURIComponent(UNIT.key)}&lesson=${encodeURIComponent(lesson.id)}`;
+      a.className = "group block bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-teal-400 transition";
+      a.innerHTML = `
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="font-semibold">${lesson.name}</p>
+            <p class="text-slate-400 text-sm mt-1">Includes Reading · Lab · Quiz · Glossary</p>
+          </div>
+          <span class="text-slate-500 group-hover:text-teal-300 text-lg">➜</span>
+        </div>
+      `;
+      return a;
+    }
+
+    UNIT.items.forEach(item => {
+      if (item.type === "group") {
+        const wrap = document.createElement("div");
+        wrap.className = "space-y-3";
+
+        const header = document.createElement("div");
+        header.className = "flex items-center justify-between";
+        header.innerHTML = `
+          <p class="text-slate-200 font-semibold">${item.title}</p>
+          <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300">Group</span>
+        `;
+        wrap.appendChild(header);
+
+        const childWrap = document.createElement("div");
+        childWrap.className = "pl-4 border-l border-slate-800 space-y-3";
+        item.children.forEach(ch => childWrap.appendChild(lessonCard(ch)));
+
+        wrap.appendChild(childWrap);
+        tree.appendChild(wrap);
+      } else {
+        tree.appendChild(lessonCard(item));
+      }
+    });
+  </script>
+</body>
+</html>

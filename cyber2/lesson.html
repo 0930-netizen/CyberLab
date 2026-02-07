@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>KiloByte SOC - Lesson</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 min-h-screen text-slate-200">
+  <nav class="flex items-center justify-between px-10 py-6 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-300">🛡️</div>
+      <p class="text-xl font-semibold">KiloByte SOC</p>
+    </div>
+    <a href="unit.html?unit=unit1" class="text-teal-400">Back to Unit</a>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-10 py-12 space-y-8">
+    <a id="back" href="unit.html?unit=unit1" class="text-teal-400">← Back to Unit</a>
+
+    <header class="space-y-2">
+      <h1 id="lessonName" class="text-3xl font-semibold">Lesson</h1>
+      <p id="lessonDesc" class="text-slate-400"></p>
+      <span id="categoryPill" class="inline-block mt-1 px-3 py-1 text-xs rounded-full bg-teal-500/10 text-teal-300">Category</span>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a id="readingLink" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 hover:border-teal-400 transition">
+        <p class="text-lg font-semibold">📖 Reading</p>
+        <p class="text-slate-400 text-sm mt-2">Learn the concept</p>
+      </a>
+
+      <a id="labLink" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 hover:border-teal-400 transition">
+        <p class="text-lg font-semibold">🧪 Lab</p>
+        <p class="text-slate-400 text-sm mt-2">Interactive practice + reflection</p>
+      </a>
+
+      <a id="quizLink" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 hover:border-teal-400 transition">
+        <p class="text-lg font-semibold">📝 Quiz</p>
+        <p class="text-slate-400 text-sm mt-2">Check understanding</p>
+      </a>
+
+      <a id="glossaryLink" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 hover:border-teal-400 transition">
+        <p class="text-lg font-semibold">📚 Glossary</p>
+        <p class="text-slate-400 text-sm mt-2">Key terms</p>
+      </a>
+    </section>
+  </main>
+
+  <script>
+    function qp(name, fallback="") {
+      const p = new URLSearchParams(window.location.search);
+      return p.get(name) || fallback;
+    }
+
+    const unit = qp("unit","unit1");
+    const lessonId = qp("lesson","cyber-ethics");
+
+    // Same map as unit.html (keep consistent)
+    const LESSONS = {
+      "cyber-hacking": { name:"Cybersecurity & Hacking", desc:"What cybersecurity is, what hacking means, and why context matters.", category:"concepts" },
+      "threat-actors": { name:"Threat Actors", desc:"Identify actor types, motivations, and what evidence suggests.", category:"threat_actors" },
+      "cyber-ethics": { name:"Cyber Ethics", desc:"Authorization, consent, professionalism, and decision-making.", category:"ethics" },
+      "malware-types": { name:"Malware Types", desc:"Classify malware by behavior and impact.", category:"malware" },
+      "hashing-salting": { name:"Hashing & Salting", desc:"Why hashing is used for passwords and how salting helps.", category:"crypto" },
+      "attack-types": { name:"Cyber Attack Types & Analysis", desc:"Analyze attack patterns and evidence.", category:"attack_analysis" },
+      "careers": { name:"Careers in Cybersecurity", desc:"SOC roles and security career pathways.", category:"careers" },
+      "org-teams": { name:"Cyber Organization & Teams", desc:"How teams communicate and operate in security.", category:"org" },
+      "malware-cases": { name:"Malware Types & Cases", desc:"Connect malware categories to real-world examples.", category:"malware" },
+      "sandboxing": { name:"Sandboxing Malware", desc:"Safe analysis mindset, isolation, observation.", category:"malware" },
+      "kali-cli": { name:"Kali Linux & CLI", desc:"CLI fundamentals and safety rules (simulation only).", category:"linux" },
+      "ransomware-concepts": { name:"How Ransomware Works (Concepts)", desc:"Conceptual understanding of ransomware behavior and defenses.", category:"malware" },
+      "blog1": { name:"Blog: Malware Creation & Analysis", desc:"Reflective writing and analysis thinking.", category:"writing" },
+      "final-exam": { name:"Unit 1 Final Exam", desc:"Unit wrap-up assessment.", category:"exam" },
+    };
+
+    const L = LESSONS[lessonId] || { name:"Lesson", desc:"", category:"general" };
+
+    document.getElementById("lessonName").textContent = L.name;
+    document.getElementById("lessonDesc").textContent = L.desc;
+    document.getElementById("categoryPill").textContent = L.category.replaceAll("_"," ");
+
+    document.getElementById("back").href = `unit.html?unit=${encodeURIComponent(unit)}`;
+
+    document.getElementById("readingLink").href  = `lesson-reading.html?unit=${encodeURIComponent(unit)}&lesson=${encodeURIComponent(lessonId)}`;
+    document.getElementById("labLink").href      = `lesson-lab.html?unit=${encodeURIComponent(unit)}&lesson=${encodeURIComponent(lessonId)}`;
+    document.getElementById("quizLink").href     = `lesson-quiz.html?unit=${encodeURIComponent(unit)}&lesson=${encodeURIComponent(lessonId)}`;
+    document.getElementById("glossaryLink").href = `lesson-glossary.html?unit=${encodeURIComponent(unit)}&lesson=${encodeURIComponent(lessonId)}`;
+  </script>
+</body>
+</html>
